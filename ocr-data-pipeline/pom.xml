@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.greenleaf.lor.ocr</groupId>
+    <artifactId>ocr-data-pipeline</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <parent>
+        <groupId>com.greenleaf</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.0.3</version>
+    </parent>
+
+    <name>LOR Gender Study Data Pipeline</name>
+    <description>
+        A pipeline for processing a set of LORs into something suitable for further processing by machine learning
+        and AI based analytics.
+    </description>
+
+    <developers>
+        <developer>
+            <name>Micheal Forkin</name>
+            <email>mike.forkin@gmail.com</email>
+            <organization>GreenLeaf</organization>
+            <organizationUrl>http://mforkin.github.io/</organizationUrl>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/mforkin/LORGenderStudy/issues</url>
+    </issueManagement>
+
+
+    <distributionManagement>
+        <repository>
+            <id>greenleaf-release</id>
+            <url>https://greenleaf.jfrog.io/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>greenleaf-snapshot</id>
+            <url>https://greenleaf.jfrog.io/artifactory/libs-snapshot-local</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:mforkin/LORGenderStudy.git</connection>
+        <developerConnection>scm:git:git@github.com:mforkin/LORGenderStudy.git</developerConnection>
+        <url>https://github.com/mforkin/greenleaf-parent</url>
+        <tag>HEAD</tag>
+    </scm>
+
+</project>

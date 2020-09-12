@@ -1,0 +1,10 @@
+*.swap
+*.swp
+target
+*.iml
+.idea
+*.class
+*.log
+out
+out/*
+.DS_Store
