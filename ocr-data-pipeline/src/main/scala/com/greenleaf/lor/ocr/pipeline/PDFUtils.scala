@@ -25,7 +25,7 @@ object PDFUtils {
 
     Try {
       for ((page, idx) <- pages.zipWithIndex) {
-        page.save(outDir + File.separator + formatOutputName(file.getName, idx))
+        page.save(outDir + File.separator + FileUtils.formatOutputName(file.getName, idx.toString))
       }
     } match {
       case Success(_) =>
@@ -34,10 +34,5 @@ object PDFUtils {
         pdf.close()
         throw new Exception(s"Failed to write split pdf: ${filePath}", ex)
     }
-  }
-
-  private def formatOutputName (fileName: String, pageNumber: Int): String = {
-    val fileNameParts = fileName.split("[.]")
-    fileNameParts.slice(0, fileNameParts.length - 1).mkString(".") + s"-$pageNumber" + fileNameParts.last
   }
 }
