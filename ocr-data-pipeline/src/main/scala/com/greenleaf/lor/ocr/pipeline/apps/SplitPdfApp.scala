@@ -5,7 +5,7 @@ import com.typesafe.config.ConfigFactory
 
 import scala.collection.parallel.CollectionConverters._
 
-class SplitPdfApp extends App {
+object SplitPdfApp extends App {
   val config = ConfigFactory.load().getConfig("com.greenleaf.lor")
   val keyPath = config.getString("keyPath")
   val pdfSplitPath = config.getString("pdfSplitPath")

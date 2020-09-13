@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigFactory
 
 import scala.collection.parallel.CollectionConverters._
 
-class ConvertApp extends App {
+object ConvertApp extends App {
   val config = ConfigFactory.load().getConfig("com.greenleaf.lor")
   val imagePath = config.getString("imagePath")
   val textPath = config.getString("textPath")
