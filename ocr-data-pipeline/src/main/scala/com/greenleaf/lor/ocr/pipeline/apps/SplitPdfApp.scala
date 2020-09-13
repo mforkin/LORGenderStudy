@@ -1,5 +1,7 @@
 package com.greenleaf.lor.ocr.pipeline.apps
 
+import java.io.File
+
 import com.greenleaf.lor.ocr.pipeline.{KeyParser, PDFUtils}
 import com.typesafe.config.ConfigFactory
 
@@ -15,7 +17,7 @@ object SplitPdfApp extends App {
 
   applicants.foreach(applicant => {
     applicant.lorMetaData.foreach(lor => {
-        PDFUtils.splitDoc(lor.fileName + ".pdf", pdfSplitPath)
+        PDFUtils.splitDoc(dataDir + File.pathSeparator + lor.fileName + ".pdf", pdfSplitPath)
     })
   })
 }
