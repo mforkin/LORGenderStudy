@@ -17,7 +17,7 @@ object SplitPdfApp extends App {
 
   applicants.foreach(applicant => {
     applicant.lorMetaData.foreach(lor => {
-        PDFUtils.splitDoc(dataDir + File.pathSeparator + lor.fileName + ".pdf", pdfSplitPath)
+        PDFUtils.splitDoc(dataDir + File.separator + lor.fileName + ".pdf", pdfSplitPath)
     })
   })
 }
