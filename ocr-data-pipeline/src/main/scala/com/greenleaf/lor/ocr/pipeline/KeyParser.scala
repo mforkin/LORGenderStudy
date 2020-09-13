@@ -52,8 +52,8 @@ object KeyParser extends StrictLogging {
       extractByHeader(record, "Gender"),
       extractByHeader(record, "Race (Self Identification)"),
       extractByHeader(record, "Alpha Omega Alpha (AOA) Status").equalsIgnoreCase("YES"),
-      extractByHeader(record, "USMLE Score (Step 1)").toInt,
-      extractByHeader(record, "USMLE Score (Step 2)").toInt,
+      extractStepScore(extractByHeader(record, "USMLE Score (Step 1)")),
+      extractStepScore(extractByHeader(record, "USMLE Score (Step 2)")),
       dateFormatter.parse(extractByHeader(record, "Birth Date")),
       dateFormatter.parse(extractByHeader(record, "Interview Date")),
       Seq()
@@ -69,6 +69,10 @@ object KeyParser extends StrictLogging {
       )
     )
 
-  private def extractByHeader(record: CSVRecord, header: String): String =
+  private def extractByHeader (record: CSVRecord, header: String): String =
     record.get(header).toUpperCase()
+
+  private def extractStepScore (score: String): Option[Int] = {
+    Try(score.toInt).toOption
+  }
 }

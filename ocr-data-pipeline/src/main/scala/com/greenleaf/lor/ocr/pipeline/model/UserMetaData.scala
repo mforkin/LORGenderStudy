@@ -19,8 +19,8 @@ case class UserMetaData (
                           gender: String,
                           race: String,
                           aoa: Boolean,
-                          step1: Int,
-                          step2: Int,
+                          step1: Option[Int],
+                          step2: Option[Int],
                           birthDate: Date,
                           interviewDate: Date,
                           lorMetaData: Seq[LORMetaData]
