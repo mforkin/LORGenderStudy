@@ -2,6 +2,7 @@ package com.greenleaf.lor.ocr.pipeline
 
 import java.io.FileReader
 import java.text.SimpleDateFormat
+import java.util.Date
 
 import com.greenleaf.lor.ocr.pipeline.model.{LORMetaData, LORWriter, UserMetaData}
 import com.typesafe.scalalogging.StrictLogging
@@ -54,8 +55,8 @@ object KeyParser extends StrictLogging {
       extractByHeader(record, "Alpha Omega Alpha (AOA) Status").equalsIgnoreCase("YES"),
       extractStepScore(extractByHeader(record, "USMLE Score (Step 1)")),
       extractStepScore(extractByHeader(record, "USMLE Score (Step 2)")),
-      dateFormatter.parse(extractByHeader(record, "Birth Date")),
-      dateFormatter.parse(extractByHeader(record, "Interview Date")),
+      extractDate(extractByHeader(record, "Birth Date")),
+      extractDate(extractByHeader(record, "Interview Date")),
       Seq()
     )
 
@@ -74,5 +75,9 @@ object KeyParser extends StrictLogging {
 
   private def extractStepScore (score: String): Option[Int] = {
     Try(score.toInt).toOption
+  }
+
+  private def extractDate (date: String): Option[Date] = {
+    Try(dateFormatter.parse(date)).toOption
   }
 }

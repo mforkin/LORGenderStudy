@@ -21,7 +21,7 @@ case class UserMetaData (
                           aoa: Boolean,
                           step1: Option[Int],
                           step2: Option[Int],
-                          birthDate: Date,
-                          interviewDate: Date,
+                          birthDate: Option[Date],
+                          interviewDate: Option[Date],
                           lorMetaData: Seq[LORMetaData]
                         )
