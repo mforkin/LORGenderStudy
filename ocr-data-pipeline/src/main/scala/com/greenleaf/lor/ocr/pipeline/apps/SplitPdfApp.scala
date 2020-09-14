@@ -13,7 +13,7 @@ object SplitPdfApp extends App {
   val dataDirPath = config.getString("dataPath")
 
   val dataDir = new File(dataDirPath)
-  val lorPDFs = dataDir.listFiles().filterNot(_.isDirectory).par
+  val lorPDFs = dataDir.listFiles().filter(f => !f.isDirectory && !f.getName.startsWith(".")).par
 
   lorPDFs.foreach(lorPDF => PDFUtils.splitDoc(lorPDF, pdfSplitPath))
 }

@@ -15,7 +15,7 @@ object ConvertApp extends App {
 
   val imagesDir = new File(imagePath)
 
-  val images = imagesDir.listFiles().filterNot(_.isDirectory).par
+  val images = imagesDir.listFiles().filter(f => !f.isDirectory && !f.getName.startsWith(".")).par
 
   images.foreach(lorImage => OCRUtils.convertDoc(lorImage, textPath, tessDataPath))
 }
