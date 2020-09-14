@@ -12,7 +12,7 @@ object OCRUtils {
     val tesseract = new Tesseract ()
     val outNamePieces = imgFile.getName.split("[.]")
     val outName = outNamePieces.slice(0, outNamePieces.length - 1).mkString(".") + ".txt"
-    val pw = new PrintWriter(outPath + File.separator + outName)
+    val pw = new PrintWriter(outPath + File.separator + outName, "UTF-8")
     Try {
       tesseract.setDatapath(tessDataPath)
       val text = tesseract.doOCR(imgFile)
