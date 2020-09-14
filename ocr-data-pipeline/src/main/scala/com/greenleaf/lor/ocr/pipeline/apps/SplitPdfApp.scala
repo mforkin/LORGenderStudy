@@ -2,7 +2,7 @@ package com.greenleaf.lor.ocr.pipeline.apps
 
 import java.io.File
 
-import com.greenleaf.lor.ocr.pipeline.{KeyParser, PDFUtils}
+import com.greenleaf.lor.ocr.pipeline.PDFUtils
 import com.typesafe.config.ConfigFactory
 
 import scala.collection.parallel.CollectionConverters._
