@@ -9,8 +9,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 object PDFUtils {
-  def splitDoc (filePath: String, outDir: String): Unit = {
-    val file = new File(filePath)
+  def splitDoc (file: File, outDir: String): Unit = {
     val pdf = PDDocument.load(file)
 
     val pages: Seq[PDDocument] = Try {
@@ -20,7 +19,7 @@ object PDFUtils {
       case Success(docs) => docs
       case Failure(ex) =>
         pdf.close()
-        throw new Exception(s"Failed to split pdf doc: ${filePath}", ex)
+        throw new Exception(s"Failed to split pdf doc: ${file.getName}", ex)
     }
 
     Try {
@@ -32,7 +31,12 @@ object PDFUtils {
         pdf.close()
       case Failure(ex) =>
         pdf.close()
-        throw new Exception(s"Failed to write split pdf: ${filePath}", ex)
+        throw new Exception(s"Failed to write split pdf: ${file.getName}", ex)
     }
+  }
+
+  def splitDoc (filePath: String, outDir: String): Unit = {
+    val file = new File(filePath)
+    splitDoc(file, outDir)
   }
 }
