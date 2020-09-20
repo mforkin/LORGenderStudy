@@ -25,7 +25,7 @@ object PDFUtils extends StrictLogging {
 
         Try {
           for ((page, idx) <- pages.zipWithIndex) {
-            page.save(outDir + File.separator + FileUtils.formatOutputName(file.getName, idx.toString))
+            page.save(outDir + File.separator + FileHelper.formatOutputName(file.getName, idx.toString))
           }
         } match {
           case Success(_) =>
