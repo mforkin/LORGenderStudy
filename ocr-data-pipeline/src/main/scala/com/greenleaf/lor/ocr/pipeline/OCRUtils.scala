@@ -2,7 +2,6 @@ package com.greenleaf.lor.ocr.pipeline
 
 import java.io.{File, PrintWriter}
 
-import net.sourceforge.tess4j.ITessAPI.TessWritingDirection
 import net.sourceforge.tess4j.Tesseract
 
 import scala.util.{Failure, Success, Try}
