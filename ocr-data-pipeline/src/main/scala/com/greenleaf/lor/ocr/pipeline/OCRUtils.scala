@@ -2,6 +2,7 @@ package com.greenleaf.lor.ocr.pipeline
 
 import java.io.{File, PrintWriter}
 
+import net.sourceforge.tess4j.ITessAPI.TessPageSegMode
 import net.sourceforge.tess4j.Tesseract
 
 import scala.util.{Failure, Success, Try}
@@ -9,6 +10,7 @@ import scala.util.{Failure, Success, Try}
 object OCRUtils {
   def convertDoc (imgFile: File, outPath: String, tessDataPath: String): Unit = {
     val tesseract = new Tesseract ()
+    tesseract.setPageSegMode(TessPageSegMode.PSM_AUTO_OSD)
     val outNamePieces = imgFile.getName.split("[.]")
     val outName = outNamePieces.slice(0, outNamePieces.length - 1).mkString(".") + ".txt"
     val pw = new PrintWriter(outPath + File.separator + outName, "UTF-8")
