@@ -20,13 +20,34 @@ object GreetingFilterApp extends App {
 
   val introductions = Seq(
     "whom it may concern",
+    "whom tt may concern",
+    "whom is may concern",
+    "whom it may concem",
+    "whom this may concern",
     "to program director",
+    "to the program director",
+    "to the anesthesia program director",
     "to residency program director",
     "to selection committee",
     "to sir/madam",
     "to the attention of the program director",
+    "to residency directors",
     "dear ",
-    "subject:"
+    "subject:",
+    "recognition of limits, conscientiousness, etc",
+    "residency selection committee:",
+    "residency program director,",
+    "program director,",
+    "anesthesiology residency program:",
+    "letter of recommendation for ",
+    "eras letter id:",
+    "aamc id:",
+    "written comments:",
+    "reservations about qualification for further training",
+    "re:",
+    "rie:",
+    "department of surgery letter of recommendation",
+    "svannah, GA 31406"
   )
 
   val textDir = new File(cleanStandardTextPath)
@@ -72,16 +93,12 @@ object GreetingFilterApp extends App {
 
   def findIntroLine (lines: Seq[String]): Int = {
     lines.zipWithIndex.foldLeft(-1)((index, row) => {
-      // only use the first occurance, should break out but whatever
+      // only use the first occurrence, should break out but whatever
       if (index < 0) {
         row match {
           case (line, i) =>
             val standardizeLine = line.toLowerCase
-            if (introductions.exists(intro => {
-              val editDistance = distanceCalculator.apply(standardizeLine, intro)
-              val maxDist = if (intro.length < 8) 0 else 1
-              editDistance < maxDist
-            })) {
+            if (introductions.exists(intro => standardizeLine.contains(intro))) {
               i
             } else {
               index

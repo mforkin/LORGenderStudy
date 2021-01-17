@@ -32,7 +32,9 @@ object FilterFormsApp extends App {
   })
 
   def isFormPageOne (txt: String): Boolean = {
-    txt.toLowerCase.contains("nature and amount of contact with the applicant")
+    txt.toLowerCase.contains("nature and amount of contact with the applicant") ||
+      txt.toLowerCase.contains("performance to other trainees in teh program") ||
+      txt.length < 100
   }
 
   def isFormPageTwo (txt: String): Boolean = {
