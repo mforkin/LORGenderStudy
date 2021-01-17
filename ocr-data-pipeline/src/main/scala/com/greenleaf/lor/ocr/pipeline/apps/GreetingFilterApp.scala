@@ -17,6 +17,7 @@ object GreetingFilterApp extends App {
   val noHeaderFoundPath = config.getString("noGreetingTextPath")
   val distanceCalculator = new LevenshteinDistance()
   val introMaxEdits = 1
+  val pagesToTrim = config.getStringList("greetingPagesToTrim")
 
   val unableToParse = config.getStringList("unableToParse")
   val skipGreetingIds = config.getStringList("skipGreetingFilter")
@@ -86,7 +87,8 @@ object GreetingFilterApp extends App {
 
   val textFiles = textDir.listFiles().filter(f => {
     val letterId = f.getName.split("-").head
-    !f.isDirectory && !f.getName.startsWith(".") && !unableToParse.contains(letterId)
+    !f.isDirectory && !f.getName.startsWith(".") && !unableToParse.contains(letterId) &&
+      !pagesToTrim.contains(f.getName.split("[.]").head)
   }).par
 
   val firstFiles = textFiles.groupBy(f => f.getName.split("-").head).map {
@@ -104,7 +106,12 @@ object GreetingFilterApp extends App {
       } else if (index < 0) {
         FileUtils.copyFile(f, new File(noHeaderFoundPath + File.separator + f.getName))
       } else {
-        val text = lines.drop(index).mkString("\n")
+        val text = lines.drop(index + 1)
+          .filter(line => {
+            !line.equalsIgnoreCase("recognition of limits, conscientiousness, etc.") &&
+              !line.equalsIgnoreCase("professionalism, maturity, self-motivation, likelihood to go above and beyond, altruism,")
+          })
+          .mkString("\n")
         val pw = new PrintWriter(cleanGreetingTextPath + File.separator + f.getName, "UTF-8")
         Try {
           pw.write(text)
