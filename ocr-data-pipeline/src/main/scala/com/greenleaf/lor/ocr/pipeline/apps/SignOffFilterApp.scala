@@ -42,7 +42,7 @@ object SignOffFilterApp extends App {
       if (index < 0) {
         FileUtils.copyFile(f, new File(noSignOffTextPath + File.separator + f.getName))
       } else {
-        val text = lines.take(index).mkString("\n")
+        val text = lines.take(index + 1).mkString("\n")
         val pw = new PrintWriter(cleanSignOffTextPath + File.separator + f.getName, "UTF-8")
         Try {
           pw.write(text)

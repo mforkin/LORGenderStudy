@@ -19,7 +19,7 @@ object GreetingFilterApp extends App {
     "to whom it may concern",
     "to program director",
     "to residency program director",
-    "to selection committe",
+    "to selection committee",
     "to sir/madam",
     "dear ",
     "subject:"
@@ -46,7 +46,7 @@ object GreetingFilterApp extends App {
       } else if (index < 0) {
         FileUtils.copyFile(f, new File(noHeaderFoundPath + File.separator + f.getName))
       } else {
-        val text = lines.drop(index + 1).mkString("\n")
+        val text = lines.drop(index).mkString("\n")
         val pw = new PrintWriter(cleanGreetingTextPath + File.separator + f.getName, "UTF-8")
         Try {
           pw.write(text)
