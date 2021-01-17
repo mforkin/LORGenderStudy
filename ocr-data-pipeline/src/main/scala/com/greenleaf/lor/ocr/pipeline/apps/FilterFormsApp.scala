@@ -36,6 +36,6 @@ object FilterFormsApp extends App {
   }
 
   def isFormPageTwo (txt: String): Boolean = {
-    txt.toLowerCase.contains("if you worked with this applicant in a clinical setting")
+    txt.toLowerCase.contains("if you worked with this applicant in a clinical")
   }
 }
