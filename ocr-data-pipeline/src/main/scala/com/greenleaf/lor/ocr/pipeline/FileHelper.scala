@@ -25,7 +25,7 @@ object FileHelper {
   def getTxtFromFile (f: File, joiner: String = " "): String = {
     val source = Source.fromFile(f)
     try {
-      source.mkString(joiner)
+      source.getLines().mkString(joiner)
     } catch {
       case ex: Throwable => throw new Exception (s"Unable to load file content: ${f.getName}", ex)
     } finally {

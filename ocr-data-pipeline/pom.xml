@@ -22,6 +22,7 @@
 
     <properties>
         <twelvemonkey.jpeg.version>3.3.2</twelvemonkey.jpeg.version>
+        <apache.commons.txt.version>1.9</apache.commons.txt.version>
     </properties>
 
     <developers>
@@ -91,6 +92,11 @@
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-jpeg</artifactId>
             <version>${twelvemonkey.jpeg.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${apache.commons.txt.version}</version>
         </dependency>
     </dependencies>
 

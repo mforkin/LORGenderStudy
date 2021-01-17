@@ -22,6 +22,7 @@ object GreetingFilterApp extends App {
     "to selection committe",
     "to sir/madam",
     "dear ",
+    "subject:"
   )
 
   val textDir = new File(cleanStandardTextPath)
