@@ -71,7 +71,7 @@ object KeyParser extends StrictLogging {
     )
 
   private def extractByHeader (record: CSVRecord, header: String): String =
-    record.get(header).toUpperCase()
+    record.get(header).toUpperCase().trim()
 
   private def extractStepScore (score: String): Option[Int] = {
     Try(score.toInt).toOption
