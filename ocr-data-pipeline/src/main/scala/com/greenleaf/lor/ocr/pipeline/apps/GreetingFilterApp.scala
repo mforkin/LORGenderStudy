@@ -18,42 +18,75 @@ object GreetingFilterApp extends App {
   val distanceCalculator = new LevenshteinDistance()
   val introMaxEdits = 1
 
+  val unableToParse = config.getStringList("unableToParse")
+  val skipGreetingIds = config.getStringList("skipGreetingFilter")
+
   val introductions = Seq(
     "whom it may concern",
     "whom tt may concern",
+    "whomever it may concern",
     "whom is may concern",
-    "whom it may concem",
+    "whom it my concem",
     "whom this may concern",
     "to program director",
+    "to those considering",
+    "deat program director",
     "to the program director",
     "to the anesthesia program director",
     "to residency program director",
     "to selection committee",
+    "to the selection committee",
+    "to committee members",
     "to sir/madam",
+    "sir/ma",
     "to the attention of the program director",
     "to residency directors",
     "dear ",
     "subject:",
     "recognition of limits, conscientiousness, etc",
-    "residency selection committee:",
+    "professionalism, maturity, self-motivation, likelihood to go above and beyond, altruism",
+    "residency selection committee",
     "residency program director,",
+    "residency admissions committee,",
     "program director,",
     "anesthesiology residency program:",
+    "attention program director",
     "letter of recommendation for ",
     "eras letter id:",
-    "aamc id:",
+    "aamc id",
+    "letter id:",
     "written comments:",
     "reservations about qualification for further training",
     "re:",
     "rie:",
     "department of surgery letter of recommendation",
-    "svannah, GA 31406"
+    "savannah, ga 31406",
+    "july 10, 2018",
+    "24 august 2017",
+    "august 15, 2017",
+    "september 15, 2019",
+    "september 10 2017",
+    "7 september, 2018",
+    "september 2018",
+    "1 september, 2018",
+    "june 22, 2017",
+    "september 3, 2019",
+    "september 27, 2017",
+    "september 15, 2019",
+    "subj: letter of recommendation ico lieutenant",
+    "mbernell@gmail.com",
+    "suing |e arh system",
+    "09/08/2018",
+    "09/07/2019",
+    "co-director of medical student education",
+
   )
 
   val textDir = new File(cleanStandardTextPath)
 
   val textFiles = textDir.listFiles().filter(f => {
-    !f.isDirectory && !f.getName.startsWith(".")
+    val letterId = f.getName.split("-").head
+    !f.isDirectory && !f.getName.startsWith(".") && !unableToParse.contains(letterId)
   }).par
 
   val firstFiles = textFiles.groupBy(f => f.getName.split("-").head).map {
@@ -88,7 +121,8 @@ object GreetingFilterApp extends App {
   })
 
   def expectGreeting(fileName: String): Boolean = {
-    firstFiles.contains(fileName)
+    val letterId = fileName.split("-").head
+    firstFiles.contains(fileName) && !skipGreetingIds.contains(letterId)
   }
 
   def findIntroLine (lines: Seq[String]): Int = {

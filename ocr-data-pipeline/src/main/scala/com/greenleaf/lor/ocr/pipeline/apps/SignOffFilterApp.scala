@@ -21,7 +21,8 @@ object SignOffFilterApp extends App {
     "kindly,",
     "sincercly,",
     "respectfully,",
-    "regards,"
+    "regards,",
+    "5. please feel free to e-mail me with any questions at"
   )
 
   val textDir = new File(cleanGreetingTextPath)

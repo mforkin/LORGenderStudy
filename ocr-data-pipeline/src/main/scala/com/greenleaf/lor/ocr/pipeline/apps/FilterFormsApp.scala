@@ -33,7 +33,8 @@ object FilterFormsApp extends App {
 
   def isFormPageOne (txt: String): Boolean = {
     txt.toLowerCase.contains("nature and amount of contact with the applicant") ||
-      txt.toLowerCase.contains("performance to other trainees in teh program") ||
+      txt.toLowerCase.contains("performance to other trainees in the program") ||
+      txt.toLowerCase.contains("best practice for use of the solr is to printA") ||
       txt.length < 100
   }
 
