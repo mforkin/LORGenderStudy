@@ -44,4 +44,15 @@ java \
     -cp target/ocr-data-pipeline-0.0.1-SNAPSHOT-SHADED.jar \
     "com.greenleaf.lor.ocr.pipeline.apps.FilterFormsApp"
  ```  
+1. Filter out letterheads / footers. This is actually problemmatic because the frequency of the school comes up enough
+   to impact results (at least I think that is the case). In the case of a 1 page letter, we let the greeting filter
+   take care of the letterhead as well. But in the case of multi-page letters, these things come up on multiple pages.
+   We filter by removing lines of text that are "exactly" the same on multiple pages. Exactly in this case means below
+   some edit distance threshold that we have set, the ORC isn't perfect in these cases.
+ ```sh
+ java \
+    -Dconfig.file=/home/mforkin/devel/src/LORGenderStudy/conf/application.conf \
+    -cp target/ocr-data-pipeline-0.0.1-SNAPSHOT-SHADED.jar \
+    "com.greenleaf.lor.ocr.pipeline.apps.StandardFilterApp"
+ ```
 
