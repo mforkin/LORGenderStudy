@@ -18,7 +18,7 @@ as we proceed.
    methods with decent success.
     * This was our final method as OCR performed better on these output images.
     ```sh
-     ls *.pdf | xargs -I{} -P7 sh -c "convert -density 600 -trim -quality 100 -flatten -sharpen 0x1.0 -black-threshold 50% -white-threshold 50% '{}' '{}.jpg'"
+     ls *.pdf | xargs -I{} -P7 sh -c "convert -density 600 -trim -quality 100 -flatten -sharpen 0x1.0 -black-threshold 50% -white-threshold 50% -colorspace rgb '{}' '{}.jpeg'"
     ```
     * This was an intermediate method that produced decent results. 
     ```sh

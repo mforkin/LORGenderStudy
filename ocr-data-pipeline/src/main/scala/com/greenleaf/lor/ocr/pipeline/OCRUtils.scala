@@ -2,7 +2,7 @@ package com.greenleaf.lor.ocr.pipeline
 
 import java.io.{File, PrintWriter}
 
-import net.sourceforge.tess4j.ITessAPI.TessPageSegMode
+import net.sourceforge.tess4j.ITessAPI.{TessOcrEngineMode, TessPageSegMode}
 import net.sourceforge.tess4j.Tesseract
 
 import scala.util.{Failure, Success, Try}

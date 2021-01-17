@@ -10,10 +10,22 @@ object FileHelper {
     fileNameParts.slice(0, fileNameParts.length - 1).mkString(".") + s"-$toAppend." + fileNameParts.last
   }
 
-  def getTxtFromFile (f: File): String = {
+  def getTxtLinesFromFile (f: File): Seq[String] = {
     val source = Source.fromFile(f)
     try {
-      source.mkString(" ")
+        source.getLines().toList
+    } catch {
+      case ex: Throwable => throw new Exception (s"Unable to load file content: ${f.getName}", ex)
+    } finally {
+      source.close()
+    }
+  }
+
+
+  def getTxtFromFile (f: File, joiner: String = " "): String = {
+    val source = Source.fromFile(f)
+    try {
+      source.mkString(joiner)
     } catch {
       case ex: Throwable => throw new Exception (s"Unable to load file content: ${f.getName}", ex)
     } finally {

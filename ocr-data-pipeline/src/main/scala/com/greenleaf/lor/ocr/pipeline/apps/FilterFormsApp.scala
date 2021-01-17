@@ -16,7 +16,7 @@ object FilterFormsApp extends App {
   val formPage1Path = processedFormPath + File.separator + "page1"
   val formPage2Path = processedFormPath + File.separator + "page2"
 
-  val textDir = new File(processedTextPath)
+  val textDir = new File(textPath)
 
   val textFiles = textDir.listFiles().filter(f => !f.isDirectory && !f.getName.startsWith(".")).par
 
