@@ -48,11 +48,15 @@ object SignOffFilterApp extends App with StrictLogging {
     "feel free to call me any time",
     "do not hesitate",
     "do.not hesitate",
+    "don't hesitate",
     "feel free to contact me",
     "se_wb",
     "cpt (puy a",
     "ncerely yours,",
-    "j erfolio md, mba, facs, fccp"
+    "j erfolio md, mba, facs, fccp",
+    "dedicated and competent surgeon. j recommend her highly for a position in",
+    "or if you have any questions",
+    "if | can answer any questions"
   )
 
   val textDir = new File(cleanGreetingTextPath)
