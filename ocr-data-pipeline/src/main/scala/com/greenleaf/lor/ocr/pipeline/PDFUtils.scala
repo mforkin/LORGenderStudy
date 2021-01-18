@@ -5,6 +5,7 @@ import java.io.File
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.pdfbox.multipdf.Splitter
 import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.text.PDFTextStripper
 
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
@@ -44,5 +45,25 @@ object PDFUtils extends StrictLogging {
   def splitDoc (filePath: String, outDir: String): Unit = {
     val file = new File(filePath)
     splitDoc(file, outDir)
+  }
+
+  def getPageText (file: File, pageIndex: Int) = {
+    Try(PDDocument.load(file)) match {
+      case Success(pdf) =>
+        val page = Try {
+          val splitter = new Splitter()
+          val pageIter = splitter.split(pdf).asScala
+          pageIter.take(pageIndex + 1).last
+        } match {
+          case Success(page) => page
+          case Failure(ex) =>
+            pdf.close()
+            throw new Exception(s"Failed to get page at index ${pageIndex}", ex)
+        }
+        val stripper = new PDFTextStripper()
+        stripper.getText(page)
+      case Failure(ex) =>
+        throw new Exception(s"Failed to load pdf: ${file.getName}", ex)
+    }
   }
 }
