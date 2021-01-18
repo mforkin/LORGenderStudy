@@ -56,7 +56,30 @@ object SignOffFilterApp extends App with StrictLogging {
     "j erfolio md, mba, facs, fccp",
     "dedicated and competent surgeon. j recommend her highly for a position in",
     "or if you have any questions",
-    "if | can answer any questions"
+    "if | can answer any questions",
+    "sincere ours",
+    "singerely",
+    "thank you very much",
+    "john f. butteyworth",
+    "steven j zeichn",
+    "steven zeichnef, md",
+    "not hesitate to contact me at",
+    "please call if you have any questions",
+    "please contact me if you have any questions",
+    "to contact me with any questions",
+    "sineerely",
+    "charles e. sc",
+    "thank you for giving very strong consideration to her application",
+    "ryan j. gunselman",
+    "(cof soliman; md.",
+    "highly recommend her/him for further gme",
+    "we will do all we can to recruit her to unc",
+    "michael as | am certain he will make an outstanding resident",
+    "david a. a, m.d.",
+    "sinceteis,",
+    "know if there is any further information | can provide",
+    "thomas jantes, m.d.",
+    "cpeyan e, res d,"
   )
 
   val textDir = new File(cleanGreetingTextPath)
@@ -163,6 +186,10 @@ object SignOffFilterApp extends App with StrictLogging {
               standardizeLine.equalsIgnoreCase("thank you") ||
               standardizeLine.equalsIgnoreCase("thank you,") ||
               standardizeLine.equalsIgnoreCase("sincere") ||
+              standardizeLine.equalsIgnoreCase("you.") ||
+              standardizeLine.equalsIgnoreCase("my a") ||
+              standardizeLine.equalsIgnoreCase("lamar barb") ||
+              standardizeLine.equalsIgnoreCase("best regards") ||
                 signOffs.exists(signOff => standardizeLine.contains(signOff))
             ) {
               i

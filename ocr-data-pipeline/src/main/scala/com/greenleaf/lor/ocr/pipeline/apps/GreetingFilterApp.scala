@@ -80,7 +80,6 @@ object GreetingFilterApp extends App {
     "09/08/2018",
     "09/07/2019",
     "co-director of medical student education",
-
   )
 
   val textDir = new File(cleanStandardTextPath)
@@ -109,7 +108,8 @@ object GreetingFilterApp extends App {
         val text = lines.drop(index + 1)
           .filter(line => {
             !line.equalsIgnoreCase("recognition of limits, conscientiousness, etc.") &&
-              !line.equalsIgnoreCase("professionalism, maturity, self-motivation, likelihood to go above and beyond, altruism,")
+              !line.equalsIgnoreCase("professionalism, maturity, self-motivation, likelihood to go above and beyond, altruism,") &&
+              !line.equalsIgnoreCase("(4) Any relevant noncognitive attributes such as leadership, compassion, positive attitude,")
           })
           .mkString("\n")
         val pw = new PrintWriter(cleanGreetingTextPath + File.separator + f.getName, "UTF-8")
