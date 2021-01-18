@@ -74,12 +74,16 @@ object SignOffFilterApp extends App with StrictLogging {
     "(cof soliman; md.",
     "highly recommend her/him for further gme",
     "we will do all we can to recruit her to unc",
+    "we will do all we can to recruit",
     "michael as | am certain he will make an outstanding resident",
     "david a. a, m.d.",
     "sinceteis,",
     "know if there is any further information | can provide",
     "thomas jantes, m.d.",
-    "cpeyan e, res d,"
+    "cpeyan e, res d,",
+    "i look forward to watching his career blossoms been my honor to have worked with him",
+    "| long branch, nj 07740",
+    "michael j. fowler md"
   )
 
   val textDir = new File(cleanGreetingTextPath)
@@ -190,6 +194,15 @@ object SignOffFilterApp extends App with StrictLogging {
               standardizeLine.equalsIgnoreCase("my a") ||
               standardizeLine.equalsIgnoreCase("lamar barb") ||
               standardizeLine.equalsIgnoreCase("best regards") ||
+              standardizeLine.equalsIgnoreCase("\"tarde") ||
+              standardizeLine.equalsIgnoreCase("wn u") ||
+              standardizeLine.equalsIgnoreCase("yours, l") ||
+              standardizeLine.equalsIgnoreCase("pd g no") ||
+              standardizeLine.equalsIgnoreCase("sincer") ||
+              standardizeLine.equalsIgnoreCase("~ c ct") ||
+              standardizeLine.equalsIgnoreCase("sin unl") ||
+              standardizeLine.equalsIgnoreCase("without reservation, | wholehearted]") ||
+              standardizeLine.equalsIgnoreCase("sincerel") ||
                 signOffs.exists(signOff => standardizeLine.contains(signOff))
             ) {
               i
