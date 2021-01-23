@@ -147,7 +147,7 @@ class WordCountStatGroup (
 
 
 
-class StatsApp extends App with StrictLogging {
+object StatsApp extends App with StrictLogging {
   val config = ConfigFactory.load().getConfig("com.greenleaf.lor")
   val sanitizedDataPath = config.getString("sanitizedNameTextPath")
   val keyPath = config.getString("keyPath")
@@ -159,22 +159,22 @@ class StatsApp extends App with StrictLogging {
 
   val statGroups = List(
     new WordCountStatGroup(
-      StatsApp.extractRankFromMetaData,
+      StatsAppHelper.extractRankFromMetaData,
       "Rank Group",
       wordCategoryKey
     ),
     new WordCountStatGroup(
-      StatsApp.extractIsProgramDirector,
+      StatsAppHelper.extractIsProgramDirector,
       "Program Director Group",
       wordCategoryKey
     ),
     new WordCountStatGroup(
-      StatsApp.extractApplicantIsWhite,
+      StatsAppHelper.extractApplicantIsWhite,
       "Is White Group",
       wordCategoryKey
     ),
     new WordCountStatGroup(
-      StatsApp.extractApplicantGender,
+      StatsAppHelper.extractApplicantGender,
       "Gender Group",
       wordCategoryKey
     )
@@ -207,7 +207,7 @@ class StatsApp extends App with StrictLogging {
   results.map(r => logger.info(r.toString))
 }
 
-object StatsApp {
+object StatsAppHelper {
   def extractApplicantIsWhite (userMetaData: UserMetaData, fileName: String): String = {
     userMetaData.race.equalsIgnoreCase("white").toString
   }
