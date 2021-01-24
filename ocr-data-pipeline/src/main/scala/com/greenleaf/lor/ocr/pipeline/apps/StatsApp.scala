@@ -16,17 +16,29 @@ trait StatGroup {
   def groupExtractor: (UserMetaData, String) => String;
 }
 
-case class CategoryStatResult (label: String, groupStat: Map[String, Map[String, (Int, Int)]]) {
+class GroupWordStatResult(label: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])]) {
   override def toString: String = {
       groupStat.foldLeft(label + "\n\n") {
         case (output, (group, stats)) =>
-            stats.toList.sortBy {
+            stats._1.toList.sortBy {
               case (_, (totalCount, docCount)) => docCount
             }.foldLeft(output + "\t" + group + "\n") {
               case (output, (word, (totalCount ,docCount))) =>
                 output + "\t\t" + word + "->" + totalCount + "," + docCount + "\n"
             }
       }
+  }
+
+  def getCategoryInfo: String = {
+    groupStat.foldLeft(label + "\n\n") {
+      case (output, (group, stats)) =>
+        stats._2.toList.sortBy {
+          case (_, docCount) => docCount
+        }.foldLeft(output + "\t" + group + "\n") {
+          case (output, (category, (docCount))) =>
+            output + "\t\t" + category + "->" + docCount + "\n"
+        }
+    }
   }
 }
 
@@ -39,20 +51,32 @@ class WordCountStatGroup (
 
 
   // groupStat: group, (word -> (totalCount, docCount))
-  def updateStats (userMetaData: UserMetaData, fileName: String, fileText: String, groupStat: Map[String, Map[String, (Int, Int)]], editDistance: Int): Map[String, Map[String, (Int, Int)]] = {
+  def updateStats (userMetaData: UserMetaData, fileName: String, fileText: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])], editDistance: Int): Map[String, (Map[String, (Int, Int)], Map[String, Int])] = {
     val group = groupExtractor(userMetaData, fileName)
     val tokenizedText = tokenizeText(fileText)
     wordCategoryKey.groupings.foldLeft(groupStat) {
-      case (groupStat, (_, words)) =>
-        words.foldLeft(groupStat) {
+      case (groupStat, (category, words)) =>
+        val (updatedStats, didUpdate) = words.foldLeft((groupStat, false)) {
           case (groupStat, word) =>
             if (word.contains(" ")) {
-              val newStat = computeNewStat(group, word, tokenizedText, groupStat, editDistance);
-              computeNewStat(group, word.replaceAll(" ", "-"), tokenizedText, newStat, editDistance)
+              val (newStat, didUpdate) = computeNewStat(group, word, tokenizedText, groupStat._1, editDistance);
+              val (updatedStat, didUpdateTwo) = computeNewStat(group, word.replaceAll(" ", "-"), tokenizedText, newStat, editDistance)
+              (updatedStat, didUpdate || didUpdateTwo || groupStat._2)
             } else {
-              computeNewStat(group, word, tokenizedText, groupStat, editDistance)
+              val (newStat, didUpdate) = computeNewStat(group, word, tokenizedText, groupStat._1, editDistance)
+              (newStat, didUpdate || groupStat._2)
             }
         }
+        val groupStats = updatedStats(group)
+        val categoryStats = groupStats._2
+        val updatedCategoryStats = categoryStats.updated(
+          category,
+          categoryStats.getOrElse(category, 0) + (if (didUpdate) 1 else 0)
+        )
+        updatedStats.updated(
+          group,
+          (groupStats._1, updatedCategoryStats)
+        )
     }
   }
 
@@ -64,16 +88,22 @@ class WordCountStatGroup (
                        group: String,
                        word: String,
                        text: Array[String],
-                       groupStat: Map[String, Map[String, (Int, Int)]],
-                       editDistance: Int): Map[String, Map[String, (Int, Int)]] = {
+                       groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])],
+                       editDistance: Int): (Map[String, (Map[String, (Int, Int)], Map[String, Int])], Boolean) = {
     // get the existing group stats, or create a blank groupStat for the group
-    val existingGroup: Map[String, (Int, Int)] = groupStat.getOrElse(group, Map[String, (Int, Int)]())
+    val existingGroupStats: (Map[String, (Int, Int)], Map[String, Int]) = groupStat.getOrElse(group, (Map[String, (Int, Int)](), Map[String, Int]()))
+    val existingGroup: Map[String, (Int, Int)] = existingGroupStats._1
+    val existingCategoryInfo: Map[String, Int] = existingGroupStats._2
     val cnt: Int = getWordCount(word, text, editDistance)
     val (existingTotalCount, existingDocCount) = existingGroup.getOrElse(word, (0, 0))
     val newWordStat: (Int, Int) = (existingTotalCount + cnt, existingDocCount + (if (cnt > 0) 1 else 0))
-    groupStat.updated(
+    val updatedData: Map[String, (Map[String, (Int, Int)], Map[String, Int])] = groupStat.updated(
       group,
-      existingGroup.updated(word, newWordStat)
+      (existingGroup.updated(word, newWordStat), existingCategoryInfo)
+    )
+    (
+      updatedData,
+      cnt > 0
     )
   }
 
@@ -149,11 +179,11 @@ class WordCountStatGroup (
 
 object StatsApp extends App with StrictLogging {
   val config = ConfigFactory.load().getConfig("com.greenleaf.lor")
-  val sanitizedDataPath = config.getString("sanitizedNameTextPath")
+  val dataPath = config.getString("singleDocPath")
   val keyPath = config.getString("keyPath")
 
   val key: Seq[UserMetaData] = KeyParser.parseKey(keyPath)
-  val textDir = new File(sanitizedDataPath)
+  val textDir = new File(dataPath)
 
   val wordCategoryKey = CategoryKey.apply()
 
@@ -182,32 +212,35 @@ object StatsApp extends App with StrictLogging {
 
   val txtFiles = textDir.listFiles().filter(f => {
     !f.isDirectory && !f.getName.startsWith(".")
-  }).map(f => {
-    val pieces = f.getName.split("-")
+  }).flatMap(f => {
+    val pieces = f.getName.split("[.]")
     val letterId = pieces.head
     val participantNumber = pieces.head.replaceAll("[a-zA-Z]", "").toInt
-    val keyEntry = key.find(a => a.participantNumber == participantNumber).getOrElse(
-      throw new Exception("Couldn't find file in key: " + f.getName)
-    )
-
-    (f.getName, keyEntry, FileHelper.getTxtFromFile(f, " "))
+    key.find(a => a.participantNumber == participantNumber) match {
+      case Some(keyEntry) =>
+        Some((f.getName, keyEntry, FileHelper.getTxtFromFile(f, " ")))
+      case None =>
+        logger.info("Couldn't find file in key: " + f.getName)
+        None
+    }
   })
-
-
 
   val results = statGroups.par.map {
     case (group) =>
-      val stats = txtFiles.foldLeft(Map[String, Map[String, (Int, Int)]]()) {
+      val stats = txtFiles.foldLeft(Map[String, (Map[String, (Int, Int)], Map[String, Int])]()) {
         case (totalStats, (fileName, keyEntry, fileTxt)) =>
           group.updateStats(keyEntry, fileName, fileTxt, totalStats, 0)
       }
-      CategoryStatResult(group.label, stats)
+      new GroupWordStatResult(group.label, stats)
   }
 
-  results.map(r => logger.info(r.toString))
+  results.map(r => {
+    //logger.info(r.toString)
+    logger.info(r.getCategoryInfo)
+  })
 }
 
-object StatsAppHelper {
+object StatsAppHelper extends StrictLogging {
   def extractApplicantIsWhite (userMetaData: UserMetaData, fileName: String): String = {
     userMetaData.race.equalsIgnoreCase("white").toString
   }
@@ -217,16 +250,22 @@ object StatsAppHelper {
   }
 
   def extractRankFromMetaData (userMetaData: UserMetaData, fileName: String): String = {
-    userMetaData.lorMetaData.find(_.fileName.equalsIgnoreCase(fileName)) match {
+    val fileLookup = fileName.split("[.]").head
+    userMetaData.lorMetaData.find(_.fileName.equalsIgnoreCase(fileLookup)) match {
       case Some(data) => data.writerMetaData.rank
-      case None => throw new Exception("No key found for file " + fileName)
+      case None =>
+        logger.info("No key found for file " + fileName)
+        "unknown"
     }
   }
 
   def extractIsProgramDirector (userMetaData: UserMetaData, fileName: String): String = {
-    userMetaData.lorMetaData.find(_.fileName.equalsIgnoreCase(fileName)) match {
+    val fileLookup = fileName.split("[.]").head
+    userMetaData.lorMetaData.find(_.fileName.equalsIgnoreCase(fileLookup)) match {
       case Some(data) => data.writerMetaData.isProgramDirector.toString
-      case None => throw new Exception("No key found for file " + fileName)
+      case None =>
+        logger.info("No key found for file " + fileName)
+        "unknown"
     }
   }
 }

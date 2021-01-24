@@ -87,3 +87,10 @@ as we proceed.
          -cp target/ocr-data-pipeline-0.0.1-SNAPSHOT-SHADED.jar \
          "com.greenleaf.lor.ocr.pipeline.apps.NameReplaceFilterApp"
       ``` 
+1. The last thing we need to do is to combine the pages back into a single doc. This just makes computing stats easier.
+      ```sh
+      java \
+         -Dconfig.file=/home/mforkin/devel/src/LORGenderStudy/conf/application.conf \
+         -cp target/ocr-data-pipeline-0.0.1-SNAPSHOT-SHADED.jar \
+         "com.greenleaf.lor.ocr.pipeline.apps.AggregateUserApp"
+      ```
