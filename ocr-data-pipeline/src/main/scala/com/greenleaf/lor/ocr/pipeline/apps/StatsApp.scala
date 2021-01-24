@@ -16,15 +16,15 @@ trait StatGroup {
   def groupExtractor: (UserMetaData, String) => String;
 }
 
-class GroupWordStatResult(label: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])]) {
+class GroupWordStatResult(label: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)]) {
   override def toString: String = {
       groupStat.foldLeft(label + "\n\n") {
         case (output, (group, stats)) =>
             stats._1.toList.sortBy {
-              case (_, (totalCount, docCount)) => docCount
+              case (_, (_, docCount)) => docCount
             }.foldLeft(output + "\t" + group + "\n") {
               case (output, (word, (totalCount ,docCount))) =>
-                output + "\t\t" + word + "->" + totalCount + "," + docCount + "\n"
+                output + "\t\t" + word + "->" + (totalCount / groupStat(group)._3.toDouble) + "," + (docCount / groupStat(group)._3.toDouble) + "\n"
             }
       }
   }
@@ -36,7 +36,7 @@ class GroupWordStatResult(label: String, groupStat: Map[String, (Map[String, (In
           case (_, docCount) => docCount
         }.foldLeft(output + "\t" + group + "\n") {
           case (output, (category, (docCount))) =>
-            output + "\t\t" + category + "->" + docCount + "\n"
+            output + "\t\t" + category + "->" + (docCount / groupStat(group)._3.toDouble) + "\n"
         }
     }
   }
@@ -51,10 +51,10 @@ class WordCountStatGroup (
 
 
   // groupStat: group, (word -> (totalCount, docCount))
-  def updateStats (userMetaData: UserMetaData, fileName: String, fileText: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])], editDistance: Int): Map[String, (Map[String, (Int, Int)], Map[String, Int])] = {
+  def updateStats (userMetaData: UserMetaData, fileName: String, fileText: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)], editDistance: Int): Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)] = {
     val group = groupExtractor(userMetaData, fileName)
     val tokenizedText = tokenizeText(fileText)
-    wordCategoryKey.groupings.foldLeft(groupStat) {
+    val res = wordCategoryKey.groupings.foldLeft(groupStat) {
       case (groupStat, (category, words)) =>
         val (updatedStats, didUpdate) = words.foldLeft((groupStat, false)) {
           case (groupStat, word) =>
@@ -75,9 +75,14 @@ class WordCountStatGroup (
         )
         updatedStats.updated(
           group,
-          (groupStats._1, updatedCategoryStats)
+          (groupStats._1, updatedCategoryStats, groupStats._3)
         )
     }
+    val resGroup = res(group)
+    res.updated(
+      group,
+      (resGroup._1, resGroup._2, resGroup._3 + 1)
+    )
   }
 
   private def tokenizeText (text: String): Array[String] = {
@@ -88,18 +93,19 @@ class WordCountStatGroup (
                        group: String,
                        word: String,
                        text: Array[String],
-                       groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int])],
-                       editDistance: Int): (Map[String, (Map[String, (Int, Int)], Map[String, Int])], Boolean) = {
+                       groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)],
+                       editDistance: Int): (Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)], Boolean) = {
     // get the existing group stats, or create a blank groupStat for the group
-    val existingGroupStats: (Map[String, (Int, Int)], Map[String, Int]) = groupStat.getOrElse(group, (Map[String, (Int, Int)](), Map[String, Int]()))
+    val existingGroupStats: (Map[String, (Int, Int)], Map[String, Int], Int) = groupStat.getOrElse(group, (Map[String, (Int, Int)](), Map[String, Int](), 0))
     val existingGroup: Map[String, (Int, Int)] = existingGroupStats._1
     val existingCategoryInfo: Map[String, Int] = existingGroupStats._2
+    val existingCategoryCnt: Int = existingGroupStats._3
     val cnt: Int = getWordCount(word, text, editDistance)
     val (existingTotalCount, existingDocCount) = existingGroup.getOrElse(word, (0, 0))
     val newWordStat: (Int, Int) = (existingTotalCount + cnt, existingDocCount + (if (cnt > 0) 1 else 0))
-    val updatedData: Map[String, (Map[String, (Int, Int)], Map[String, Int])] = groupStat.updated(
+    val updatedData: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)] = groupStat.updated(
       group,
-      (existingGroup.updated(word, newWordStat), existingCategoryInfo)
+      (existingGroup.updated(word, newWordStat), existingCategoryInfo, existingCategoryCnt)
     )
     (
       updatedData,
@@ -188,7 +194,7 @@ object StatsApp extends App with StrictLogging {
   val wordCategoryKey = CategoryKey.apply()
 
   val statGroups = List(
-    new WordCountStatGroup(
+    /*new WordCountStatGroup(
       StatsAppHelper.extractRankFromMetaData,
       "Rank Group",
       wordCategoryKey
@@ -202,7 +208,7 @@ object StatsApp extends App with StrictLogging {
       StatsAppHelper.extractApplicantIsWhite,
       "Is White Group",
       wordCategoryKey
-    ),
+    ),*/
     new WordCountStatGroup(
       StatsAppHelper.extractApplicantGender,
       "Gender Group",
@@ -227,7 +233,7 @@ object StatsApp extends App with StrictLogging {
 
   val results = statGroups.par.map {
     case (group) =>
-      val stats = txtFiles.foldLeft(Map[String, (Map[String, (Int, Int)], Map[String, Int])]()) {
+      val stats = txtFiles.foldLeft(Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)]()) {
         case (totalStats, (fileName, keyEntry, fileTxt)) =>
           group.updateStats(keyEntry, fileName, fileTxt, totalStats, 0)
       }

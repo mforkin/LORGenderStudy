@@ -25,12 +25,12 @@ object CategoryKey {
           categories.foldLeft(key) {
             (key, category) =>
               Option(row.get(category)) match {
-                case Some(word) =>
+                case Some(word) if word.length > 0 =>
                   key.get(category) match {
                     case Some(wordSet) => key.updated(category, wordSet + word)
                     case None => key.updated(category, Set(word))
                   }
-                case None => key
+                case _ => key
               }
           }
       }
