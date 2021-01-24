@@ -204,11 +204,12 @@ object StatsApp extends App with StrictLogging {
       "Program Director Group",
       wordCategoryKey
     ),
+     */
     new WordCountStatGroup(
       StatsAppHelper.extractApplicantIsWhite,
       "Is White Group",
       wordCategoryKey
-    ),*/
+    ),
     new WordCountStatGroup(
       StatsAppHelper.extractApplicantGender,
       "Gender Group",
