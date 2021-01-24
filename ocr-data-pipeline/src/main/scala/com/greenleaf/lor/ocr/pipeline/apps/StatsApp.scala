@@ -16,7 +16,7 @@ trait StatGroup {
   def groupExtractor: (UserMetaData, String) => String;
 }
 
-class GroupWordStatResult(label: String, groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)]) {
+class GroupWordStatResult(val label: String, val groupStat: Map[String, (Map[String, (Int, Int)], Map[String, Int], Int)]) {
   override def toString: String = {
       groupStat.foldLeft(label + "\n\n") {
         case (output, (group, stats)) =>
@@ -156,7 +156,7 @@ class WordCountStatGroup (
           } else if (endsWithStar) {
             totalCnt + (if (distanceCalculator.apply(wordInText.dropRight(lengthDiff), testWord) < editDistance) 1 else 0)
           } else {
-            throw new Exception("Unsupported Regex")
+            throw new Exception("Unsupported Regex: " + word)
           }
         }
 
@@ -245,6 +245,36 @@ object StatsApp extends App with StrictLogging {
     //logger.info(r.toString)
     logger.info(r.getCategoryInfo)
   })
+
+  val totalResults = results.par.map {
+    case label =>
+      label.label -> label.groupStat.map {
+        case (group, (wordMappings, _, totalCnt)) =>
+          val (g, m) = (group -> wordCategoryKey.groupings.map {
+            case (category, words) =>
+              val categoryWordInDoc = words.flatMap(w => wordMappings.get(w))
+              (category -> categoryWordInDoc.foldLeft(0) {
+                case (cnt, (totalWords, _)) => cnt + totalWords
+              })
+          })
+          g -> m.map {
+            case (cat, cnt) => cat -> cnt / totalCnt.toDouble
+          }
+      }
+  }
+
+  System.out.print(
+    totalResults.foldLeft("") {
+      case (txt, (label, labelData)) =>
+        txt + labelData.foldLeft("\n" + label + ":\n\n") {
+          case (txt, (group, groupData)) =>
+            txt + groupData.foldLeft("\t" + group + "\n") {
+              case (txt, (category, percentageCount)) =>
+                txt + "\t\t" + category + ":" + percentageCount + "\n"
+            }
+        }
+    }
+  )
 }
 
 object StatsAppHelper extends StrictLogging {
