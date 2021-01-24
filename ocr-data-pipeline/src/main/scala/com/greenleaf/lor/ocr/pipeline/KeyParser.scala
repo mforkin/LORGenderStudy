@@ -80,4 +80,7 @@ object KeyParser extends StrictLogging {
   private def extractDate (date: String): Option[Date] = {
     Try(dateFormatter.parse(date)).toOption
   }
+
+  def fileNameToParticipantLetterId(fileName: String): String = fileName.split("[.]").head
+  def fileNameToParticipantId(fileName: String): Int = fileNameToParticipantLetterId(fileName).replaceAll("[a-zA-Z]", "").toInt
 }
