@@ -58,9 +58,9 @@ class WordCountStatGroup (
       case (groupStat, (category, words)) =>
         val (updatedStats, didUpdate) = words.foldLeft((groupStat, false)) {
           case (groupStat, word) =>
-            if (word.contains(" ")) {
+            if (word.contains("-")) {
               val (newStat, didUpdate) = computeNewStat(group, word, tokenizedText, groupStat._1, editDistance);
-              val (updatedStat, didUpdateTwo) = computeNewStat(group, word.replaceAll(" ", "-"), tokenizedText, newStat, editDistance)
+              val (updatedStat, didUpdateTwo) = computeNewStat(group, word.replaceAll("-", " "), tokenizedText, newStat, editDistance)
               (updatedStat, didUpdate || didUpdateTwo || groupStat._2)
             } else {
               val (newStat, didUpdate) = computeNewStat(group, word, tokenizedText, groupStat._1, editDistance)
@@ -164,18 +164,28 @@ class WordCountStatGroup (
   }
 
   private def getWordCountStrict (word: String, text: Array[String]): Int = {
-    text.foldLeft(0) {
-      case (totalCnt, wordInText) =>
-        totalCnt + (if(wordInText.equalsIgnoreCase(word)) 1 else 0)
+    if (word.contains(" ")) {
+      getWordCountStrictRegEx(word, text)
+    } else {
+      text.foldLeft(0) {
+        case (totalCnt, wordInText) =>
+          totalCnt + (if (wordInText.equalsIgnoreCase(word)) 1 else 0)
+      }
     }
   }
 
   private def getWordCountStrictRegEx (word: String, text: Array[String]): Int = {
-    val regExString = "^" + word.replaceAll("[*]", ".*") + "$"
-    val regEx = Pattern.compile(regExString, Pattern.CASE_INSENSITIVE)
-    text.foldLeft(0) {
-      case (totalCnt, wordInText) =>
-        totalCnt + (if(regEx.matcher(wordInText).find()) 1 else 0)
+    if (word.contains(" ")) {
+      val regExString = word.replaceAll("[*]", "[a-zA-Z]*")
+      val regEx = Pattern.compile(regExString, Pattern.CASE_INSENSITIVE)
+      regEx.matcher(text.mkString(" ")).results().count().toInt
+    } else {
+      val regExString = "^" + word.replaceAll("[*]", "[a-zA-Z]*") + "$"
+      val regEx = Pattern.compile(regExString, Pattern.CASE_INSENSITIVE)
+      text.foldLeft(0) {
+        case (totalCnt, wordInText) =>
+          totalCnt + (if (regEx.matcher(wordInText).find()) 1 else 0)
+      }
     }
   }
 
