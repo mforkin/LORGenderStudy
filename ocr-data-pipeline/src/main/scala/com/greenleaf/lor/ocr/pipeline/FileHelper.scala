@@ -13,7 +13,7 @@ object FileHelper {
   def getTxtLinesFromFile (f: File): Seq[String] = {
     val source = Source.fromFile(f)
     try {
-        source.getLines().toList
+        source.getLines().toList.map(_.toLowerCase)
     } catch {
       case ex: Throwable => throw new Exception (s"Unable to load file content: ${f.getName}", ex)
     } finally {
@@ -25,7 +25,7 @@ object FileHelper {
   def getTxtFromFile (f: File, joiner: String = " "): String = {
     val source = Source.fromFile(f)
     try {
-      source.getLines().mkString(joiner)
+      source.getLines().mkString(joiner).toLowerCase
     } catch {
       case ex: Throwable => throw new Exception (s"Unable to load file content: ${f.getName}", ex)
     } finally {

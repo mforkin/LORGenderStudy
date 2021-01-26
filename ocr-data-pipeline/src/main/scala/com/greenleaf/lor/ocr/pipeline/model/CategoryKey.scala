@@ -19,7 +19,7 @@ object CategoryKey {
     val source = new FileReader(keyPath)
     val parser = new CSVParser(source, CSVFormat.DEFAULT.withHeader())
     Try {
-      val categories = parser.getHeaderNames.asScala.toList
+      val categories = parser.getHeaderNames.asScala.toList.map(_.toLowerCase)
       parser.asScala.foldLeft(Map[String, Set[String]]()) {
         case (key, row) =>
           categories.foldLeft(key) {
@@ -27,8 +27,8 @@ object CategoryKey {
               Option(row.get(category)) match {
                 case Some(word) if word.length > 0 =>
                   key.get(category) match {
-                    case Some(wordSet) => key.updated(category, wordSet + word)
-                    case None => key.updated(category, Set(word))
+                    case Some(wordSet) => key.updated(category, wordSet + word.toLowerCase)
+                    case None => key.updated(category, Set(word.toLowerCase))
                   }
                 case _ => key
               }
@@ -44,8 +44,6 @@ object CategoryKey {
         source.close()
         throw new Exception("Couldn't parse category key file: " + keyPath, ex)
     }
-
-
   }
 }
 
