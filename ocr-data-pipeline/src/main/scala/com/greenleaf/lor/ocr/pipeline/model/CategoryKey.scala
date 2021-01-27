@@ -19,7 +19,7 @@ object CategoryKey {
     val source = new FileReader(keyPath)
     val parser = new CSVParser(source, CSVFormat.DEFAULT.withHeader())
     Try {
-      val categories = parser.getHeaderNames.asScala.toList.map(_.toLowerCase)
+      val categories = parser.getHeaderNames.asScala.toList
       parser.asScala.foldLeft(Map[String, Set[String]]()) {
         case (key, row) =>
           categories.foldLeft(key) {

@@ -2,8 +2,9 @@ package com.greenleaf.lor.ocr.pipeline.apps
 
 import java.io.File
 
+import com.greenleaf.lor.ocr.pipeline.apps.CounterApp.wordCategoryKey
 import com.greenleaf.lor.ocr.pipeline.{FileHelper, KeyParser}
-import com.greenleaf.lor.ocr.pipeline.model.stats.{AverageWordCount, MostFrequentWords}
+import com.greenleaf.lor.ocr.pipeline.model.stats.{AverageWordCount, MostFrequentWords, SpecificWordCount}
 import com.greenleaf.lor.ocr.pipeline.model.{CategoryKey, UserMetaData}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
@@ -21,7 +22,7 @@ object CounterApp extends App with StrictLogging {
   val wordCategoryKey = CategoryKey.apply()
 
   val stats = List(
-    new AverageWordCount(
+    /*new AverageWordCount(
       StatsAppHelper.extractApplicantIsWhite,
       1
     ),
@@ -44,6 +45,24 @@ object CounterApp extends App with StrictLogging {
     new MostFrequentWords(
       StatsAppHelper.extractApplicantGender,
       5
+    ),*/
+    new SpecificWordCount(
+      StatsAppHelper.extractApplicantIsWhite,
+      wordCategoryKey
+    ),
+    new SpecificWordCount(
+      StatsAppHelper.extractApplicantGender,
+      wordCategoryKey
+    ),
+    new SpecificWordCount(
+      StatsAppHelper.extractApplicantIsWhite,
+      wordCategoryKey,
+      1
+    ),
+    new SpecificWordCount(
+      StatsAppHelper.extractApplicantGender,
+      wordCategoryKey,
+      1
     )
   )
 

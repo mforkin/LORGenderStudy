@@ -7,7 +7,7 @@ import com.greenleaf.lor.ocr.pipeline.model.{CategoryKey, UserMetaData}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.similarity.LevenshteinDistance
 
-import scala.collection.{immutable, mutable}
+import scala.collection.mutable
 
 class SpecificWordCount (
                           val groupExtractor: (UserMetaData, String) => String,
@@ -21,6 +21,19 @@ class SpecificWordCount (
 
   // Group -> docId -> word -> count
   val groupDocToWordCnt = mutable.Map[String, mutable.Map[String, mutable.Map[String, Int]]]()
+
+  val docsPerGroup = mutable.Map[String, Int]()
+
+  override def toString: String = {
+    docsPerGroup.foldLeft("\nTotal Docs:\n\n") {
+      case (str, (group, cnt)) => s"$str\t$group -> $cnt\n"
+    } +
+      specificWordCountsPerGroup.foldLeft("\n\n\nCnt per Group") {
+        case (str, (group, wordMap)) => wordMap.toList.sortBy(_._2._1)(Ordering.Int.reverse).take(20).foldLeft(s"$str\t$group\n") {
+          case (str, (word, (total, docs))) => s"$str\t\t$word -> ($total, $docs) (${total/(docsPerGroup(group).toDouble)}, ${docs/(docsPerGroup(group).toDouble)})\n"
+        }
+      }
+  }
 
   def updateInternalStatistic(userMetaData: UserMetaData, fileName: String, fileText: String): Unit = {
     val group = groupExtractor(userMetaData, KeyParser.fileNameToParticipantLetterId(fileName))
@@ -40,6 +53,7 @@ class SpecificWordCount (
     specificWordCountsPerGroup.put(group, groupWordCounts)
     groupDocCounts.put(letterId, docCounts)
     groupDocToWordCnt.put(group, groupDocCounts)
+    docsPerGroup.put(group, docsPerGroup.getOrElse(group, 0) + 1)
   }
 }
 
@@ -88,7 +102,7 @@ object WordCntHelper extends StrictLogging {
 
   def getWordCountRegExFuzzy (word: String, text: String, editDistance: Int): Int = {
     if (word.contains(" ")) {
-      logger.info("Can't fuzzy match, fallback to strict regex")
+      logger.trace("Can't fuzzy match, fallback to strict regex")
       getWordCountRegExStrict(word, text)
     } else {
       val startsWithStar = word.startsWith("*")
@@ -109,7 +123,7 @@ object WordCntHelper extends StrictLogging {
             } else if (endsWithStar) {
               totalCnt + (if (distanceCalculator.apply(wordInText.dropRight(lengthDiff), testWord) < editDistance) 1 else 0)
             } else {
-              logger.info("Can't fuzzy match, fallback to strict regex")
+              logger.trace("Can't fuzzy match, fallback to strict regex")
               getWordCountRegExStrict(word, text)
             }
           }
