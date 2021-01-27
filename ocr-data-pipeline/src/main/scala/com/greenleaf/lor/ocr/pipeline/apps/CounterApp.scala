@@ -4,7 +4,7 @@ import java.io.File
 
 import com.greenleaf.lor.ocr.pipeline.apps.CounterApp.wordCategoryKey
 import com.greenleaf.lor.ocr.pipeline.{FileHelper, KeyParser}
-import com.greenleaf.lor.ocr.pipeline.model.stats.{AverageWordCount, MostFrequentWords, SpecificWordCount}
+import com.greenleaf.lor.ocr.pipeline.model.stats.{AverageWordCount, MostFrequentWords, SignificanceStat, SpecificWordCount}
 import com.greenleaf.lor.ocr.pipeline.model.{CategoryKey, UserMetaData}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
@@ -85,4 +85,11 @@ object CounterApp extends App with StrictLogging {
   }
 
   stats.foreach(stat => logger.info(stat.toString))
+
+  logger.info("\n\n ---- Significance Stats ---- \n\n")
+  stats.foreach {
+    case stat =>
+      new SignificanceStat(stat, wordCategoryKey).calculateAll()
+
+  }
 }

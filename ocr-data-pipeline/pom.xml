@@ -23,6 +23,7 @@
     <properties>
         <twelvemonkey.jpeg.version>3.3.2</twelvemonkey.jpeg.version>
         <apache.commons.txt.version>1.9</apache.commons.txt.version>
+        <apache.commons.math.version>3.6.1</apache.commons.math.version>
     </properties>
 
     <developers>
@@ -97,6 +98,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>${apache.commons.txt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>${apache.commons.math.version}</version>
         </dependency>
     </dependencies>
 
