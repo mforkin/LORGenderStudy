@@ -35,6 +35,10 @@ class SpecificWordCount (
       }
   }
 
+  override def toCSV: Unit = {
+
+  }
+
   def updateInternalStatistic(userMetaData: UserMetaData, fileName: String, fileText: String): Unit = {
     val group = groupExtractor(userMetaData, KeyParser.fileNameToParticipantLetterId(fileName))
     val groupWordCounts = specificWordCountsPerGroup.getOrElse(group, mutable.Map[String, (Int, Int)]())

@@ -2,7 +2,6 @@ package com.greenleaf.lor.ocr.pipeline.apps
 
 import java.io.File
 
-import com.greenleaf.lor.ocr.pipeline.apps.CounterApp.wordCategoryKey
 import com.greenleaf.lor.ocr.pipeline.{FileHelper, KeyParser}
 import com.greenleaf.lor.ocr.pipeline.model.stats.{AverageWordCount, MostFrequentWords, SignificanceStat, SpecificWordCount}
 import com.greenleaf.lor.ocr.pipeline.model.{CategoryKey, UserMetaData}
@@ -22,7 +21,7 @@ object CounterApp extends App with StrictLogging {
   val wordCategoryKey = CategoryKey.apply()
 
   val stats = List(
-    /*new AverageWordCount(
+    new AverageWordCount(
       StatsAppHelper.extractApplicantIsWhite,
       1
     ),
@@ -45,7 +44,10 @@ object CounterApp extends App with StrictLogging {
     new MostFrequentWords(
       StatsAppHelper.extractApplicantGender,
       5
-    ),*/
+    )
+  )
+
+  val specificWordCountStats = List(
     new SpecificWordCount(
       StatsAppHelper.extractApplicantIsWhite,
       wordCategoryKey
@@ -82,14 +84,19 @@ object CounterApp extends App with StrictLogging {
   txtFiles.foreach {
     case (fileName, keyEntry, fileTxt) =>
       stats.par.foreach(_.updateInternalStatistic(keyEntry, fileName, fileTxt))
+      specificWordCountStats.par.foreach(_.updateInternalStatistic(keyEntry, fileName, fileTxt))
   }
 
-  stats.foreach(stat => logger.info(stat.toString))
+  stats.foreach(_.toCSV)
 
   logger.info("\n\n ---- Significance Stats ---- \n\n")
-  stats.foreach {
-    case stat =>
-      new SignificanceStat(stat, wordCategoryKey).calculateAll()
 
+  val significancesStats = specificWordCountStats.map {
+    case stat =>
+      val ss = new SignificanceStat(stat, wordCategoryKey)
+      ss.calculateAll()
+      ss
   }
+
+  significancesStats.foreach(_.toCSV)
 }

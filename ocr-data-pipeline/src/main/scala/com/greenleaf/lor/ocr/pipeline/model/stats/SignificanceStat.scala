@@ -1,16 +1,22 @@
 package com.greenleaf.lor.ocr.pipeline.model.stats
+import java.io.PrintWriter
+
 import com.greenleaf.lor.ocr.pipeline.model.CategoryKey
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.math3.stat.inference.TTest
 
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 class SignificanceStat (
                         specificWordCount: SpecificWordCount,
                         categoryKey: CategoryKey
-                       ) extends StrictLogging {
+                       ) extends StrictLogging with Outputable {
 
   val ttest = new TTest()
+
+  val significanceValues = mutable.Map[String, Double]()
+  val groupCategoryCnts = mutable.Map[String, (String, Double, Int)]()
 
   def calculateAll (): Unit = {
     val categoriesPerDoc: Seq[(String, Map[String, mutable.Map[String, Int]])] = getCategoriesPerDocument().toList
@@ -25,18 +31,14 @@ class SignificanceStat (
     val group1Samples = categoriesPerDoc(group1)
     val group2Samples = categoriesPerDoc(group2)
 
-    val res = categoryKey.groupings.map {
+    categoryKey.groupings.map {
       case (category, _) =>
         val sample1 = group1Samples(category).values.map(_.toDouble)
         val sample2 = group2Samples(category).values.map(_.toDouble)
-        category -> ttest.tTest(sample1.toArray, sample2.toArray)
+        groupCategoryCnts.put(category, (group1, sample1.sum, sample1.size))
+        groupCategoryCnts.put(category, (group2, sample2.sum, sample2.size))
+        significanceValues.put(s"${category}_-_${group1}_-_$group2", ttest.tTest(sample1.toArray, sample2.toArray))
     }
-
-    logger.info(
-      res.foldLeft(s"\npValues $group1 <-> $group2:\n\n") {
-        case (category, pVal) => s"\t$category -> $pVal\n"
-      }
-    )
   }
 
   // returns group -> category -> docId -> cnt
@@ -53,6 +55,43 @@ class SignificanceStat (
                 }
             }
         }
+    }
+  }
+
+  def toCSV: Unit = {
+    val significanceFName = "SignificanceStats.csv"
+    val headers = "category,group1,group2,significance\n"
+    val output = significanceValues.foldLeft(headers) {
+      case (o, (label, sig)) =>
+        val Array(category, group1, group2) = label.split("[_][-][_]")
+        s"$o$category,$group1,$group2,$sig\n"
+    }
+
+    val pw = new PrintWriter(significanceFName)
+    Try {
+      pw.write(output)
+    } match {
+      case Success(_) => pw.close()
+      case Failure(exception) =>
+        pw.close()
+        throw new Exception("Couldn't write significances", exception)
+    }
+
+    val groupCntsFName = "CategoryCounts.csv"
+    val groupCntsHeaders = "category,group,averageCnt,totalcnt,totalDocs\n"
+    val groupCntsoutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
+      case (o, (category, (group, totalCnt, docCount))) =>
+        s"$o$category,$group,${totalCnt/docCount.toDouble},$totalCnt,$docCount\n"
+    }
+
+    val grpPW = new PrintWriter(groupCntsFName)
+    Try {
+      grpPW.write(groupCntsoutput)
+    } match {
+      case Success(_) => pw.close()
+      case Failure(exception) =>
+        pw.close()
+        throw new Exception("Couldn't write grpCategoryCnt", exception)
     }
   }
 }

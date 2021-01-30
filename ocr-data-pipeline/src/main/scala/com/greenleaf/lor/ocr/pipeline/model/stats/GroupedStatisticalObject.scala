@@ -7,6 +7,10 @@ trait StatisticalObject {
   def groupExtractor: (UserMetaData, String) => String
 }
 
-abstract class GroupedStatisticalObject extends StatisticalObject {
+trait Outputable {
+  def toCSV: Unit
+}
+
+abstract class GroupedStatisticalObject extends StatisticalObject with Outputable {
   def updateInternalStatistic (userMetaData: UserMetaData, fileName: String, fileText: String): Unit
 }
