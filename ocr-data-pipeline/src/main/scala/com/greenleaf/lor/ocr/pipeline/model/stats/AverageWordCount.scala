@@ -8,8 +8,7 @@ import com.greenleaf.lor.ocr.pipeline.model.UserMetaData
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-class AverageWordCount (val groupExtractor: (UserMetaData, String) => String, minWordLength: Int = 1)  extends GroupedStatisticalObject {
-  val label = "AverageWordCount"
+class AverageWordCount (val groupExtractor: (UserMetaData, String) => String, val label: String, minWordLength: Int = 1)  extends GroupedStatisticalObject {
   //group -> (totalWords, totalDocs)
   val wordCountsPerGroup = mutable.Map[String, (Int, Int)]()
   def updateInternalStatistic(userMetaData: UserMetaData, fileName: String, fileText: String): Unit = {
@@ -28,7 +27,7 @@ class AverageWordCount (val groupExtractor: (UserMetaData, String) => String, mi
 
   def toCSV: Unit = {
     val keys = wordCountsPerGroup.keys.mkString("_")
-    val fName = s"$label-min_$minWordLength-$keys.csv"
+    val fName = s"$label-$keys.csv"
 
     val headers = "group,average,totalWords,totalDocs\n"
     val output = wordCountsPerGroup.foldLeft(headers) {

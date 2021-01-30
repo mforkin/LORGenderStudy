@@ -10,7 +10,8 @@ import scala.util.{Failure, Success, Try}
 
 class SignificanceStat (
                         specificWordCount: SpecificWordCount,
-                        categoryKey: CategoryKey
+                        categoryKey: CategoryKey,
+                        val label: String
                        ) extends StrictLogging with Outputable {
 
   val ttest = new TTest()
@@ -59,7 +60,7 @@ class SignificanceStat (
   }
 
   def toCSV: Unit = {
-    val significanceFName = "/tmp/SignificanceStats.csv"
+    val significanceFName = s"/tmp/$label-significance.csv"
     val headers = "category,group1,group2,significance\n"
     val output = significanceValues.foldLeft(headers) {
       case (o, (label, sig)) =>
@@ -78,9 +79,9 @@ class SignificanceStat (
         throw new Exception("Couldn't write significances", exception)
     }
 
-    val groupCntsFName = "/tmp/CategoryCounts.csv"
+    val groupCntsFName = s"/tmp/$label-CategoryCounts.csv"
     val groupCntsHeaders = "category,group,averageCnt,totalcnt,totalDocs\n"
-    val groupCntsOutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
+    val groupCntsOutput = groupCategoryCnts.toList.sortBy(_._1).foldLeft(groupCntsHeaders) {
       case (o, (categoryGroup, (totalCnt, docCount))) =>
         val Array(category, group) = categoryGroup.split("[_][-][_]")
         s"$o$category,$group,${totalCnt/docCount.toDouble},$totalCnt,$docCount\n"

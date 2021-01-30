@@ -12,10 +12,9 @@ import scala.collection.mutable
 class SpecificWordCount (
                           val groupExtractor: (UserMetaData, String) => String,
                           categoryKey: CategoryKey,
-                          minDistance: Int = 0
+                          val label: String,
+                          minDistance: Int = 0,
                         ) extends GroupedStatisticalObject {
-  val label = "SpecificWordCount"
-
   // Group -> Word -> totalCount, docCount
   val specificWordCountsPerGroup = mutable.Map[String, mutable.Map[String, (Int, Int)]]()
 

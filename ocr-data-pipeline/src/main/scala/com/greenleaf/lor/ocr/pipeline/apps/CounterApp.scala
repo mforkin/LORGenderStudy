@@ -23,26 +23,32 @@ object CounterApp extends App with StrictLogging {
   val stats = List(
     new AverageWordCount(
       StatsAppHelper.extractApplicantIsWhite,
+      "AverageWordCount_isWhite_minLength1",
       1
     ),
     new AverageWordCount(
       StatsAppHelper.extractApplicantIsWhite,
+      "AverageWordCount_isWhite_minLength5",
       5
     ),
     new AverageWordCount(
       StatsAppHelper.extractApplicantGender,
+      "AverageWordCount_gender_minLength1",
       1
     ),
     new AverageWordCount(
       StatsAppHelper.extractApplicantGender,
+      "AverageWordCount_gender_minLength5",
       5
     ),
     new MostFrequentWords(
       StatsAppHelper.extractApplicantIsWhite,
+      "MostFrequentWords_isWhite_minLength5",
       5
     ),
     new MostFrequentWords(
       StatsAppHelper.extractApplicantGender,
+      "MostFrequentWords_gender_minLength5",
       5
     )
   )
@@ -50,20 +56,24 @@ object CounterApp extends App with StrictLogging {
   val specificWordCountStats = List(
     new SpecificWordCount(
       StatsAppHelper.extractApplicantIsWhite,
-      wordCategoryKey
+      wordCategoryKey,
+      "specificWordCount_isWhite_minDist0"
     ),
     new SpecificWordCount(
       StatsAppHelper.extractApplicantGender,
-      wordCategoryKey
+      wordCategoryKey,
+      "specificWordCount_gender_minDist0"
     ),
     new SpecificWordCount(
       StatsAppHelper.extractApplicantIsWhite,
       wordCategoryKey,
+      "specificWordCount_isWhite_minDist1",
       1
     ),
     new SpecificWordCount(
       StatsAppHelper.extractApplicantGender,
       wordCategoryKey,
+      "specificWordCount_gender_minDist1",
       1
     )
   )
@@ -93,7 +103,7 @@ object CounterApp extends App with StrictLogging {
 
   val significancesStats = specificWordCountStats.map {
     case stat =>
-      val ss = new SignificanceStat(stat, wordCategoryKey)
+      val ss = new SignificanceStat(stat, wordCategoryKey, stat.label + "sigStats")
       ss.calculateAll()
       ss
   }

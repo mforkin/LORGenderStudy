@@ -8,8 +8,7 @@ import com.greenleaf.lor.ocr.pipeline.model.UserMetaData
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-class MostFrequentWords (val groupExtractor: (UserMetaData, String) => String, minWordLength: Int = 1)  extends GroupedStatisticalObject {
-  val label = "MostFrequentWords"
+class MostFrequentWords (val groupExtractor: (UserMetaData, String) => String, val label: String, minWordLength: Int = 1)  extends GroupedStatisticalObject {
   val mostFrequentWordsPerGroup = mutable.Map[String, (mutable.Map[String, Int], Int)]()
 
   override def updateInternalStatistic(userMetaData: UserMetaData, fileName: String, fileText: String): Unit = {
@@ -36,7 +35,7 @@ class MostFrequentWords (val groupExtractor: (UserMetaData, String) => String, m
   override def toCSV: Unit = {
     val keys = mostFrequentWordsPerGroup.keys.mkString("_")
     val topX = 50
-    val fName = s"$label-top$topX-$minWordLength-$keys.csv"
+    val fName = s"$label-top$topX-$keys.csv"
 
     val headers = "group,word,averageCnt,totalCnt,totalDocs\n"
     val output = mostFrequentWordsPerGroup.foldLeft(headers) {
