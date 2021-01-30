@@ -51,6 +51,7 @@ class MostFrequentWords (val groupExtractor: (UserMetaData, String) => String, m
 
     Try {
       pw.write(output)
+      pw.flush()
     } match {
       case Success(value) => pw.close()
       case Failure(exception) =>

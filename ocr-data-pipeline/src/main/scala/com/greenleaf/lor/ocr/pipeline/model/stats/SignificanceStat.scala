@@ -70,6 +70,7 @@ class SignificanceStat (
     val pw = new PrintWriter(significanceFName)
     Try {
       pw.write(output)
+      pw.flush()
     } match {
       case Success(_) => pw.close()
       case Failure(exception) =>
@@ -79,7 +80,7 @@ class SignificanceStat (
 
     val groupCntsFName = "/tmp/CategoryCounts.csv"
     val groupCntsHeaders = "category,group,averageCnt,totalcnt,totalDocs\n"
-    val groupCntsoutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
+    val groupCntsOutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
       case (o, (categoryGroup, (totalCnt, docCount))) =>
         val Array(category, group) = categoryGroup.split("[_][-][_]")
         s"$o$category,$group,${totalCnt/docCount.toDouble},$totalCnt,$docCount\n"
@@ -87,7 +88,8 @@ class SignificanceStat (
 
     val grpPW = new PrintWriter(groupCntsFName)
     Try {
-      grpPW.write(groupCntsoutput)
+      grpPW.write(groupCntsOutput)
+      grpPW.flush()
     } match {
       case Success(_) => pw.close()
       case Failure(exception) =>

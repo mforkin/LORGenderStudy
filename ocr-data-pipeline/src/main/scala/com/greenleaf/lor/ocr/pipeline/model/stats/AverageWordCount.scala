@@ -40,6 +40,7 @@ class AverageWordCount (val groupExtractor: (UserMetaData, String) => String, mi
 
     Try {
       pw.write(output)
+      pw.flush()
     } match {
       case Success(_) => pw.close()
       case Failure(exception) =>
