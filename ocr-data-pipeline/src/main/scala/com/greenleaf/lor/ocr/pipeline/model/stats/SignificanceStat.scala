@@ -16,7 +16,7 @@ class SignificanceStat (
   val ttest = new TTest()
 
   val significanceValues = mutable.Map[String, Double]()
-  val groupCategoryCnts = mutable.Map[String, (String, Double, Int)]()
+  val groupCategoryCnts = mutable.Map[String, (Double, Int)]()
 
   def calculateAll (): Unit = {
     val categoriesPerDoc: Seq[(String, Map[String, mutable.Map[String, Int]])] = getCategoriesPerDocument().toList
@@ -35,8 +35,8 @@ class SignificanceStat (
       case (category, _) =>
         val sample1 = group1Samples(category).values.map(_.toDouble)
         val sample2 = group2Samples(category).values.map(_.toDouble)
-        groupCategoryCnts.put(category, (group1, sample1.sum, sample1.size))
-        groupCategoryCnts.put(category, (group2, sample2.sum, sample2.size))
+        groupCategoryCnts.put(s"${category}_-_$group1", (sample1.sum, sample1.size))
+        groupCategoryCnts.put(s"${category}_-_$group2", (sample2.sum, sample2.size))
         significanceValues.put(s"${category}_-_${group1}_-_$group2", ttest.tTest(sample1.toArray, sample2.toArray))
     }
   }
@@ -80,7 +80,8 @@ class SignificanceStat (
     val groupCntsFName = "/tmp/CategoryCounts.csv"
     val groupCntsHeaders = "category,group,averageCnt,totalcnt,totalDocs\n"
     val groupCntsoutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
-      case (o, (category, (group, totalCnt, docCount))) =>
+      case (o, (categoryGroup, (totalCnt, docCount))) =>
+        val Array(category, group) = categoryGroup.split("[_][-][_]")
         s"$o$category,$group,${totalCnt/docCount.toDouble},$totalCnt,$docCount\n"
     }
 
