@@ -9,7 +9,7 @@ import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 class MostFrequentWords (val groupExtractor: (UserMetaData, String) => String, minWordLength: Int = 1)  extends GroupedStatisticalObject {
-  val label = "Most Frequent Words"
+  val label = "MostFrequentWords"
   val mostFrequentWordsPerGroup = mutable.Map[String, (mutable.Map[String, Int], Int)]()
 
   override def updateInternalStatistic(userMetaData: UserMetaData, fileName: String, fileText: String): Unit = {

@@ -59,7 +59,7 @@ class SignificanceStat (
   }
 
   def toCSV: Unit = {
-    val significanceFName = "SignificanceStats.csv"
+    val significanceFName = "/tmp/SignificanceStats.csv"
     val headers = "category,group1,group2,significance\n"
     val output = significanceValues.foldLeft(headers) {
       case (o, (label, sig)) =>
@@ -77,7 +77,7 @@ class SignificanceStat (
         throw new Exception("Couldn't write significances", exception)
     }
 
-    val groupCntsFName = "CategoryCounts.csv"
+    val groupCntsFName = "/tmp/CategoryCounts.csv"
     val groupCntsHeaders = "category,group,averageCnt,totalcnt,totalDocs\n"
     val groupCntsoutput = groupCategoryCnts.foldLeft(groupCntsHeaders) {
       case (o, (category, (group, totalCnt, docCount))) =>
