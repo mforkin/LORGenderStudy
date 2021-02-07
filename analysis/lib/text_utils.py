@@ -16,7 +16,7 @@ def clean_text(text, min_length=1):
     text = " ".join([word for word in text.split(" ") if len(word) > min_length and word not in en_stop])
 
     words = en(text)
-    return " ".join([word.lemma_ for word in words])
+    return " ".join([word.lemma_ for word in words if word.lemma_ != '-PRON-'])
 
 
 def get_text(path):
@@ -24,10 +24,10 @@ def get_text(path):
     for subdir, dirs, files in os.walk(path):
         for f in files:
             f_name = subdir + os.sep + f
-            with open(f_name, 'r') as f:
-                txt = clean_text(" ".join(f.readlines()))
-                key_metadata = kp[f[:-1]]
-                res[f_name] = {
+            with open(f_name, 'r') as fi:
+                txt = clean_text(" ".join(fi.readlines()))
+                key_metadata = kp.key[f[:-5]]
+                res[f] = {
                     'txt': txt,
                     'metadata': key_metadata
                 }
